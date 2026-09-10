@@ -10,7 +10,7 @@ export function Footer() {
             <div>
               <Image
                 className="logo"
-                src="/images/img_13.png"
+                src="/images/img_3.png"
                 alt="Turn Style logo"
                 width={245}
                 height={68}

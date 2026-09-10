@@ -17,9 +17,9 @@ export function Offers() {
               <Image
                 src={offer.image}
                 alt={offer.alt}
-                width={500}
-                height={430}
-                style={{ width: "100%", height: "430px", objectPosition: "top" }}
+                width={1080}
+                height={1350}
+                sizes="(max-width: 570px) 100vw, (max-width: 880px) 50vw, 33vw"
               />
               <div>
                 <h3>{offer.title}</h3>

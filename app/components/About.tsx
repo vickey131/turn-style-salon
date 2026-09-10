@@ -14,9 +14,9 @@ export function About({ onOpenBooking }: AboutProps) {
           <Image
             src="/images/img_4.webp"
             alt="Premium Turn Style hair colour"
-            width={600}
-            height={570}
-            style={{ width: "100%", height: "570px", objectFit: "cover" }}
+            width={1080}
+            height={1350}
+            sizes="(max-width: 880px) 100vw, 50vw"
           />
           <div className="badge">
             <b>Koramangala</b>Your premium neighbourhood salon.

@@ -12,38 +12,38 @@ export function Gallery() {
           <Image
             src="/images/img_8.webp"
             alt="Korean glass skin facial"
-            width={600}
-            height={680}
-            style={{ width: "100%", height: "680px", objectFit: "cover", objectPosition: "top" }}
+            width={1100}
+            height={1375}
+            sizes="(max-width: 880px) 100vw, 50vw"
           />
           <div className="small stagger-children">
             <Image
               src="/images/img_9.webp"
               alt="Nail art"
-              width={300}
-              height={330}
-              style={{ width: "100%", height: "330px", objectFit: "cover", objectPosition: "top" }}
+              width={1080}
+              height={1350}
+              sizes="(max-width: 570px) 100vw, (max-width: 880px) 50vw, 25vw"
             />
             <Image
               src="/images/img_10.webp"
               alt="Hydrafacial"
-              width={300}
-              height={330}
-              style={{ width: "100%", height: "330px", objectFit: "cover", objectPosition: "top" }}
+              width={1100}
+              height={1375}
+              sizes="(max-width: 570px) 100vw, (max-width: 880px) 50vw, 25vw"
             />
             <Image
-              src="/images/img_11.webp"
+              src="/images/img_1.webp"
               alt="Global hair colour"
-              width={300}
-              height={330}
-              style={{ width: "100%", height: "330px", objectFit: "cover", objectPosition: "top" }}
+              width={1080}
+              height={1350}
+              sizes="(max-width: 570px) 100vw, (max-width: 880px) 50vw, 25vw"
             />
             <Image
               src="/images/img_12.webp"
               alt="Men's grooming"
-              width={300}
-              height={330}
-              style={{ width: "100%", height: "330px", objectFit: "cover", objectPosition: "top" }}
+              width={1100}
+              height={1375}
+              sizes="(max-width: 570px) 100vw, (max-width: 880px) 50vw, 25vw"
             />
           </div>
         </div>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f57f17" />
+      <stop offset="50%" stop-color="#ed7309" />
+      <stop offset="100%" stop-color="#d86300" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Solid circular background -->
+  <circle cx="256" cy="256" r="248" fill="url(#orangeGrad)" />
+
+  <!-- Outer white concentric ring -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#ffffff" stroke-width="9" opacity="0.95" />
+
+  <!-- Inner white concentric ring -->
+  <circle cx="256" cy="256" r="162" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.9" />
+
+  <!-- Top Arc for TURN STYLE -->
+  <path id="curveTop" d="M 86,256 A 170,170 0 0,1 426,256" fill="none" />
+  <!-- Bottom Arc for SALON MAKEUP -->
+  <path id="curveBottom" d="M 426,256 A 170,170 0 0,1 86,256" fill="none" />
+
+  <!-- Arc Text -->
+  <text font-family="'DM Sans', 'Arial Black', sans-serif" font-weight="900" font-size="36" fill="#ffffff" letter-spacing="9">
+    <textPath href="#curveTop" startOffset="50%" text-anchor="middle">TURN STYLE</textPath>
+  </text>
+  <text font-family="'DM Sans', 'Arial Black', sans-serif" font-weight="800" font-size="26" fill="#ffffff" letter-spacing="8">
+    <textPath href="#curveBottom" startOffset="50%" text-anchor="middle">SALON • MAKEUP</textPath>
+  </text>
+
+  <!-- Left & Right Divider Dots -->
+  <circle cx="78" cy="256" r="11" fill="#ffffff" />
+  <circle cx="434" cy="256" r="11" fill="#ffffff" />
+
+  <!-- Monogram T S -->
+  <!-- Serif 'T' -->
+  <path d="M 172 206 L 340 206 L 340 226 L 314 226 L 314 238 L 272 238 L 272 328 C 272 350 262 362 244 362 C 230 362 220 352 220 338 L 240 338 C 240 344 244 348 250 348 C 254 348 258 344 258 334 L 258 238 L 198 238 L 198 226 L 172 226 Z" fill="#ffffff" />
+
+  <!-- Elegant 'S' woven over the stem -->
+  <path d="M 276 242 C 298 242 312 254 312 272 C 312 290 298 300 274 306 C 250 312 238 318 238 330 C 238 342 248 350 262 350 C 278 350 290 340 292 326 L 310 326 C 308 348 288 364 262 364 C 234 364 218 348 218 330 C 218 310 234 298 258 292 C 280 286 294 280 294 270 C 294 260 284 254 272 254 C 258 254 246 262 244 274 L 226 274 C 228 254 248 242 276 242 Z" fill="#ffffff" />
+</svg>

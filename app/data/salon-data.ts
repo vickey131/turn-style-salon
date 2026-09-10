@@ -106,7 +106,7 @@ export const OFFERS_DATA = [
   {
     title: "Women’s Beauty Package",
     price: "From ₹1,999",
-    image: "/images/img_5.webp",
+    image: "/images/img_2.webp",
     alt: "Women's beauty package",
   },
   {
