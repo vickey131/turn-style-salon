@@ -974,6 +974,7 @@ section {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
+  overflow-y: auto;
 }
 
 .modal.open {
@@ -1026,6 +1027,33 @@ section {
 .field:focus {
   border-color: var(--o);
   box-shadow: 0 0 0 3px rgba(237, 115, 9, 0.15);
+}
+
+.field.invalid {
+  border-color: #b3261e;
+  background-color: #fffbfa;
+}
+
+.field.invalid:focus {
+  border-color: #b3261e;
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.15);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.field-error {
+  color: #b3261e;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: -6px;
+  margin-bottom: 9px;
+  display: block;
+  text-align: left;
+  line-height: 1.35;
 }
 
 .field-grid {
