@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { SALON_INFO } from "../data/salon-data";
 
 export function Footer() {
@@ -32,21 +33,29 @@ export function Footer() {
             <div>
               <h4 className="font-semibold text-white mb-2">Quick Links</h4>
               <p>
-                <a href="#offers" className="hover:underline">
+                <Link href="/#offers" className="hover:underline">
                   Offers
-                </a>
+                </Link>
                 <br />
-                <a href="#services" className="hover:underline">
+                <Link href="/#services" className="hover:underline">
                   Services
-                </a>
+                </Link>
                 <br />
-                <a href="#reviews" className="hover:underline">
+                <Link href="/#reviews" className="hover:underline">
                   Reviews
-                </a>
+                </Link>
                 <br />
-                <a href="#location" className="hover:underline">
+                <Link href="/#location" className="hover:underline">
                   Location
-                </a>
+                </Link>
+                <br />
+                <Link href="/terms-and-conditions" className="hover:underline">
+                  Terms &amp; Conditions
+                </Link>
+                <br />
+                <Link href="/privacy-policy" className="hover:underline">
+                  Privacy Policy
+                </Link>
               </p>
             </div>
           </div>
@@ -54,8 +63,17 @@ export function Footer() {
             <div className="copy">
               © 2026 Turn Style Unisex Salon. Offers and pricing are subject to
               consultation and availability.
+              <div>V · 2026</div>
             </div>
-            <div>V · 2026</div>
+            <div className="copy-legal">
+              <Link href="/terms-and-conditions" className="hover:underline">
+                Terms &amp; Conditions
+              </Link>
+              <span style={{ margin: "0 8px", opacity: 0.5 }}>·</span>
+              <Link href="/privacy-policy" className="hover:underline">
+                Privacy Policy
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

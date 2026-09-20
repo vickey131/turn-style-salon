@@ -6,19 +6,62 @@ const DEFAULT_SCRIPT_URL =
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, phone, gender, service, date, time } = body;
+    const { name, email, phone, gender, service, date, time } = body;
 
-    // Validate 10-digit mobile number (numbers only)
-    const cleanPhone = typeof phone === "string" ? phone.replace(/\D/g, "") : "";
-    if (!/^\d{10}$/.test(cleanPhone)) {
+    // Validate name (alphabets and spaces only, no numeric characters)
+    if (
+      !name ||
+      typeof name !== "string" ||
+      !/^[A-Za-z\s]+$/.test(name.trim()) ||
+      name.trim().length < 2
+    ) {
       return NextResponse.json(
         {
           status: "error",
-          message: "Please provide a valid 10-digit mobile number (numbers only)",
+          message: "Please provide a valid name containing only alphabets (no numbers).",
         },
         { status: 400 }
       );
     }
+
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Please provide a valid email address.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate and normalize mobile number
+    let digits = typeof phone === "string" ? phone.replace(/\D/g, "") : "";
+    if (digits.length === 12 && digits.startsWith("91")) {
+      digits = digits.slice(2);
+    } else if (digits.length === 11 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+
+    const isIndian = digits.length === 10 && /^[6-9]/.test(digits);
+    const isInternational =
+      typeof phone === "string" &&
+      phone.trim().startsWith("+") &&
+      digits.length >= 7 &&
+      digits.length <= 15;
+
+    if (!isIndian && !isInternational) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Please provide a valid mobile number.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const formattedPhone = isIndian ? `+91 ${digits}` : phone;
 
     const scriptUrl =
       process.env.GOOGLE_SCRIPT_URL ||
@@ -32,8 +75,9 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name,
-        phone,
+        name: name.trim(),
+        email: email.trim(),
+        phone: formattedPhone,
         gender,
         service,
         date,

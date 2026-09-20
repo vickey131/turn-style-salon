@@ -859,6 +859,8 @@ section {
 }
 
 .copy {
+  display: flex;
+  gap: 20px;
   font-size: 0.78rem;
 }
 
@@ -968,6 +970,7 @@ section {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.25s ease, visibility 0.25s ease;
+  overflow-y: auto;
 }
 
 .modal.open {
@@ -1020,6 +1023,33 @@ section {
 .field:focus {
   border-color: var(--o);
   box-shadow: 0 0 0 3px rgba(237, 115, 9, 0.15);
+}
+
+.field.invalid {
+  border-color: #b3261e;
+  background-color: #fffbfa;
+}
+
+.field.invalid:focus {
+  border-color: #b3261e;
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.15);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.field-error {
+  color: #b3261e;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: -6px;
+  margin-bottom: 9px;
+  display: block;
+  text-align: left;
+  line-height: 1.35;
 }
 
 .field-grid {
@@ -1229,5 +1259,387 @@ input[type="date"].field {
     transform: none !important;
     transition: none !important;
     animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   THANK YOU PAGE (CONVERSION) - AIRY & LUXURIOUS
+   ========================================================================== */
+.ty-hero-section {
+  min-height: calc(100dvh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 0 56px;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--ln);
+  box-sizing: border-box;
+}
+
+.ty-hero-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+
+.ty-check-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--o);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--o);
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 14px rgba(237, 115, 9, 0.16);
+}
+
+.ty-hero-inner .title {
+  font-size: clamp(1.85rem, 3.8vw, 2.45rem);
+  margin: 0 0 12px;
+  color: var(--br);
+  line-height: 1.15;
+}
+
+.ty-lead-sub {
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 34px;
+  /* Generous gap between confirmation message & ticket card */
+  color: var(--mu);
+}
+
+/* Appointment Ticket Summary */
+.ty-ticket {
+  background: #ffffff;
+  border: 1px solid var(--ln);
+  border-radius: 4px;
+  padding: 24px 32px;
+  margin: 0 auto 36px;
+  /* Generous gap between ticket card & CTA buttons */
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(75, 36, 15, 0.05);
+  position: relative;
+  overflow: hidden;
+  max-width: 660px;
+}
+
+.ty-ticket::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--o), #ff982f);
+}
+
+.ty-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--ln);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ty-ticket-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--o);
+}
+
+.ty-ticket-badge {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--br);
+  background: #fff7ed;
+  padding: 3px 10px;
+  border: 1px solid #ead7c2;
+  border-radius: 3px;
+}
+
+.ty-ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 28px;
+}
+
+.ty-ticket-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ty-ticket-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mu);
+  margin-bottom: 3px;
+}
+
+.ty-ticket-value {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--br);
+}
+
+.ty-ticket-footer {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid #f4e8dc;
+  font-size: 0.78rem;
+  color: var(--mu);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ty-actions-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ty-actions-row .btn {
+  min-width: 180px;
+  padding: 13px 24px;
+  font-size: 0.85rem;
+}
+
+.ty-btn-outline-home {
+  background: transparent !important;
+  border-color: var(--br) !important;
+  color: var(--br) !important;
+}
+
+.ty-btn-outline-home:hover {
+  background: var(--br) !important;
+  color: #fff !important;
+}
+
+/* While We Confirm Your Slot */
+.ty-next-steps {
+  padding: 70px 0 85px;
+  background: #faf7f2;
+  scroll-margin-top: 84px;
+}
+
+.ty-next-steps .head {
+  margin-bottom: 36px;
+}
+
+@media (max-width: 768px) {
+  .ty-ticket-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .ty-ticket {
+    padding: 16px 16px;
+  }
+
+  .ty-actions-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ty-actions-row .btn {
+    width: 100%;
+  }
+
+  .ty-hero-section {
+    min-height: auto;
+    padding: 36px 0 44px;
+  }
+}
+
+/* ==========================================================================
+   LEGAL & POLICY PAGES (TERMS & PRIVACY)
+   ========================================================================== */
+.policy-page {
+  background-color: #faf7f2;
+  color: #28170f;
+  min-height: 100vh;
+}
+
+.policy-hero {
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--ln);
+  padding: 44px 0 36px;
+}
+
+.policy-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--mu);
+  margin-bottom: 14px;
+}
+
+.policy-breadcrumb a {
+  color: var(--br);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.policy-breadcrumb a:hover {
+  color: var(--o);
+}
+
+.policy-title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  color: var(--br);
+  margin: 8px 0 12px;
+}
+
+.policy-dates {
+  font-size: 0.82rem;
+  color: var(--mu);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.policy-dot {
+  color: var(--ln);
+}
+
+.policy-content-wrapper {
+  padding: 44px 0 80px;
+}
+
+.policy-container {
+  max-width: 860px;
+}
+
+.policy-card {
+  background: #ffffff;
+  border: 1px solid var(--ln);
+  border-radius: 6px;
+  padding: 36px 44px;
+  box-shadow: 0 6px 24px rgba(75, 36, 15, 0.04);
+}
+
+.policy-intro {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--br);
+  margin-bottom: 18px;
+}
+
+.policy-section {
+  border-top: 1px solid #f2e6da;
+  padding-top: 24px;
+  margin-top: 28px;
+}
+
+.policy-card section {
+  padding: 0 !important;
+}
+
+.policy-section h2 {
+  font-family: "Playfair Display", var(--font-playfair), serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--br);
+  margin: 10px 0 12px;
+}
+
+.policy-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--o);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 18px 0 8px;
+}
+
+.policy-section p {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #433128;
+  margin: 0 0 12px;
+}
+
+.policy-section strong {
+  color: var(--br);
+}
+
+.policy-list {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.policy-list li {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #433128;
+  margin-bottom: 6px;
+}
+
+.policy-contact-box {
+  background: #fff7ed;
+  border: 1px solid #ead7c2;
+  border-radius: 4px;
+  padding: 18px 22px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.92rem;
+  color: var(--br);
+}
+
+.policy-contact-link {
+  display: inline-block;
+  color: var(--o);
+  font-weight: 700;
+  margin-top: 6px;
+  transition: transform 0.2s ease;
+}
+
+.policy-contact-link:hover {
+  transform: translateX(3px);
+}
+
+.copy-legal {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+}
+
+.copy-legal a {
+  color: #ccb5a6;
+  transition: color 0.2s ease;
+}
+
+.copy-legal a:hover {
+  color: #ff982f;
+}
+
+@media (max-width: 768px) {
+  .policy-card {
+    padding: 24px 18px;
+  }
+
+  .copybar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
   }
 }

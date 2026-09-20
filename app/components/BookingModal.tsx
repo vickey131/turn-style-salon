@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { SALON_INFO } from "../data/salon-data";
 
 interface BookingModalProps {
@@ -22,43 +23,66 @@ const TIME_SLOTS = [
   "08:00 PM",
 ];
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const NAME_REGEX = /^[a-zA-Z\s]+$/;
+
 export function BookingModal({ isOpen, onClose }: BookingModalProps) {
+  const router = useRouter();
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [isRendered, setIsRendered] = useState(isOpen);
   const [isActive, setIsActive] = useState(false);
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("+91 ");
   const [gender, setGender] = useState("");
   const [service, setService] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [submittedDetails, setSubmittedDetails] = useState<{
-    name: string;
-    date: string;
-    time: string;
-  } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    email?: string;
+    phone?: string;
+  }>({});
+
+  // Sync isRendered during render when isOpen prop transitions to true
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setIsRendered(true);
+      // Ensure phone has default +91 if currently blank
+      if (!phone.trim()) {
+        setPhone("+91 ");
+      }
+    }
+  }
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let animFrame: number;
+
     if (isOpen) {
-      setIsRendered(true);
-      // Small frame delay to ensure CSS transition triggers properly
-      const animFrame = requestAnimationFrame(() => {
+      // Frame delay to ensure CSS transition triggers properly
+      animFrame = requestAnimationFrame(() => {
         setIsActive(true);
       });
       return () => cancelAnimationFrame(animFrame);
     } else {
-      setIsActive(false);
+      animFrame = requestAnimationFrame(() => {
+        setIsActive(false);
+      });
       // Wait for exit transition (250ms) before unmounting
       timeoutId = setTimeout(() => {
         setIsRendered(false);
-        setIsSubmitted(false);
         setErrorMessage(null);
+        setFieldErrors({});
       }, 260);
+      return () => {
+        cancelAnimationFrame(animFrame);
+        clearTimeout(timeoutId);
+      };
     }
-    return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
   // Handle ESC key press
@@ -81,24 +105,236 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ||
     "https://script.google.com/macros/s/AKfycbzmCBb0VpkULES3r69S7Ult4JP6ttv_NnML_y9F6tMelWOr-lhGUFQ69QYenjsyTx9z/exec";
 
+  // Validate mobile number format
+  const validateMobile = (rawPhone: string) => {
+    const trimmed = rawPhone.trim();
+    if (!trimmed || trimmed === "+91" || trimmed === "+") {
+      return { isValid: false, error: "Please enter your mobile number." };
+    }
+
+    const allDigits = trimmed.replace(/\D/g, "");
+
+    // Case 1: Has +91 country code
+    if (trimmed.startsWith("+91") || (trimmed.startsWith("91") && allDigits.length === 12)) {
+      const subscriber = allDigits.startsWith("91") ? allDigits.slice(2) : allDigits;
+      if (subscriber.length === 0) {
+        return { isValid: false, error: "Please enter your 10-digit mobile number." };
+      }
+      if (subscriber.length < 10) {
+        return {
+          isValid: false,
+          error: `Incomplete mobile number (${subscriber.length}/10 digits entered).`,
+        };
+      }
+      if (subscriber.length > 10) {
+        return { isValid: false, error: "Mobile number should be 10 digits." };
+      }
+      if (!/^[6-9]/.test(subscriber)) {
+        return {
+          isValid: false,
+          error: "Indian mobile numbers must start with 6, 7, 8, or 9.",
+        };
+      }
+      return { isValid: true, cleanPhone: subscriber, formatted: `+91 ${subscriber}` };
+    }
+
+    // Case 2: Starts with 0 (11 digits: e.g., 09876543210)
+    if (allDigits.length === 11 && allDigits.startsWith("0")) {
+      const subscriber = allDigits.slice(1);
+      if (!/^[6-9]/.test(subscriber)) {
+        return {
+          isValid: false,
+          error: "Indian mobile numbers must start with 6, 7, 8, or 9.",
+        };
+      }
+      return { isValid: true, cleanPhone: subscriber, formatted: `+91 ${subscriber}` };
+    }
+
+    // Case 3: 10-digit standard Indian number without prefix
+    if (allDigits.length === 10) {
+      if (!/^[6-9]/.test(allDigits)) {
+        return {
+          isValid: false,
+          error: "Indian mobile numbers must start with 6, 7, 8, or 9.",
+        };
+      }
+      return { isValid: true, cleanPhone: allDigits, formatted: `+91 ${allDigits}` };
+    }
+
+    // Case 4: International number starting with '+'
+    if (trimmed.startsWith("+")) {
+      if (allDigits.length >= 7 && allDigits.length <= 15) {
+        return { isValid: true, cleanPhone: allDigits, formatted: trimmed };
+      }
+      return {
+        isValid: false,
+        error: "Please enter a valid international mobile number (7-15 digits).",
+      };
+    }
+
+    if (allDigits.length < 10) {
+      return {
+        isValid: false,
+        error: `Please enter a valid 10-digit mobile number (${allDigits.length}/10 digits entered).`,
+      };
+    }
+
+    return {
+      isValid: false,
+      error: "Please enter a valid 10-digit mobile number (numbers only).",
+    };
+  };
+
+  // Name handlers: block digits, filter on change, validate on blur
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (/^[0-9]$/.test(e.key)) {
+      e.preventDefault();
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name should have only alphabets and no numeric characters",
+      }));
+    }
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/[0-9]/.test(val)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name should have only alphabets and no numeric characters",
+      }));
+      setName(val.replace(/[0-9]/g, ""));
+      return;
+    }
+
+    setName(val);
+    if (val && !/^[a-zA-Z\s]*$/.test(val)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name should only contain alphabets and spaces",
+      }));
+    } else if (fieldErrors.name) {
+      setFieldErrors((prev) => ({ ...prev, name: undefined }));
+    }
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handleNameBlur = () => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setFieldErrors((prev) => ({ ...prev, name: "Please enter your name" }));
+    } else if (/[0-9]/.test(name)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name should have only alphabets and no numeric characters",
+      }));
+    } else if (!NAME_REGEX.test(trimmed)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name should only contain alphabets and spaces",
+      }));
+    } else if (trimmed.length < 2) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        name: "Name must be at least 2 characters long",
+      }));
+    } else {
+      setFieldErrors((prev) => ({ ...prev, name: undefined }));
+    }
+  };
+
+  // Email handlers
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (fieldErrors.email) {
+      if (!val.trim() || EMAIL_REGEX.test(val.trim())) {
+        setFieldErrors((prev) => ({ ...prev, email: undefined }));
+      }
+    }
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handleEmailBlur = () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setFieldErrors((prev) => ({ ...prev, email: "Please enter your email address" }));
+    } else if (!EMAIL_REGEX.test(trimmed)) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: "Please enter a valid email address (e.g. name@example.com)",
+      }));
+    } else {
+      setFieldErrors((prev) => ({ ...prev, email: undefined }));
+    }
+  };
+
+  // Phone handlers: allow clearing, sanitize input chars, validate format on blur
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow digits, +, spaces, hyphens, and parentheses
+    const filtered = val.replace(/[^0-9+\s\-()]/g, "");
+    setPhone(filtered);
+    if (fieldErrors.phone) {
+      setFieldErrors((prev) => ({ ...prev, phone: undefined }));
+    }
+    if (errorMessage) setErrorMessage(null);
+  };
+
+  const handlePhoneBlur = () => {
+    const res = validateMobile(phone);
+    if (!res.isValid) {
+      setFieldErrors((prev) => ({ ...prev, phone: res.error }));
+    } else {
+      setFieldErrors((prev) => ({ ...prev, phone: undefined }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
-    // Validate 10-digit mobile number
-    const cleanPhone = phone.replace(/\D/g, "");
-    if (cleanPhone.length !== 10) {
-      setErrorMessage(
-        "Please enter a valid 10-digit mobile number (numbers only)."
-      );
+    const errors: { name?: string; email?: string; phone?: string } = {};
+
+    // 1. Name validation
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      errors.name = "Please enter your name";
+    } else if (/[0-9]/.test(name)) {
+      errors.name = "Name should have only alphabets and no numeric characters";
+    } else if (!NAME_REGEX.test(trimmedName)) {
+      errors.name = "Name should only contain alphabets and spaces";
+    } else if (trimmedName.length < 2) {
+      errors.name = "Name must be at least 2 characters long";
+    }
+
+    // 2. Email validation
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      errors.email = "Please enter your email address";
+    } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+      errors.email = "Please enter a valid email address (e.g. name@example.com)";
+    }
+
+    // 3. Mobile phone validation
+    const phoneRes = validateMobile(phone);
+    if (!phoneRes.isValid) {
+      errors.phone = phoneRes.error;
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setErrorMessage("Please correct the highlighted errors before submitting.");
       return;
     }
 
     setIsSubmitting(true);
 
     const payload = {
-      name,
-      phone: cleanPhone,
+      name: trimmedName,
+      email: trimmedEmail,
+      phone: phoneRes.formatted || phone.trim(),
+      cleanPhone: phoneRes.cleanPhone || phone.replace(/\D/g, ""),
       gender,
       service,
       date,
@@ -132,14 +368,28 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         });
       }
 
-      setSubmittedDetails({ name, date, time });
-      setIsSubmitted(true);
+      // Reset form state with default +91 for mobile
       setName("");
-      setPhone("");
+      setEmail("");
+      setPhone("+91 ");
       setGender("");
       setService("");
       setDate("");
       setTime("");
+      setFieldErrors({});
+
+      // Remove body scroll lock & close modal
+      document.body.classList.remove("lock");
+      onClose();
+
+      // Redirect to dedicated conversion thank-you page
+      const queryParams = new URLSearchParams({
+        name: payload.name,
+        service: payload.service,
+        date: payload.date,
+        time: payload.time,
+      });
+      router.push(`/thank-you?${queryParams.toString()}`);
     } catch (err) {
       console.error("Booking error:", err);
       setErrorMessage(
@@ -175,37 +425,62 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         >
           ×
         </button>
-        <form className="form" id="form" onSubmit={handleSubmit}>
+        <form className="form" id="form" onSubmit={handleSubmit} noValidate>
           <div className="eye">Turn Style · Koramangala</div>
           <h2 id="modal-title">Book your appointment</h2>
           <p className="sub">
             Our Koramangala team will call to confirm your service and time.
           </p>
 
-          <input
-            className="field"
-            placeholder="Your name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            className="field"
-            type="tel"
-            inputMode="numeric"
-            maxLength={10}
-            placeholder="Mobile number (10 digits)"
-            pattern="[0-9]{10}"
-            title="Please enter a valid 10-digit mobile number"
-            required
-            value={phone}
-            onChange={(e) => {
-              // Strip non-digit characters and limit to 10 digits
-              const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
-              setPhone(digitsOnly);
-              if (errorMessage) setErrorMessage(null);
-            }}
-          />
+          <div className="field-group">
+            <input
+              className={`field ${fieldErrors.name ? "invalid" : ""}`}
+              placeholder="Your name"
+              required
+              value={name}
+              onChange={handleNameChange}
+              onKeyDown={handleNameKeyDown}
+              onBlur={handleNameBlur}
+              autoComplete="name"
+            />
+            {fieldErrors.name && (
+              <span className="field-error">{fieldErrors.name}</span>
+            )}
+          </div>
+
+          <div className="field-group">
+            <input
+              className={`field ${fieldErrors.email ? "invalid" : ""}`}
+              type="email"
+              placeholder="Email address"
+              required
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+              autoComplete="email"
+            />
+            {fieldErrors.email && (
+              <span className="field-error">{fieldErrors.email}</span>
+            )}
+          </div>
+
+          <div className="field-group">
+            <input
+              className={`field ${fieldErrors.phone ? "invalid" : ""}`}
+              type="tel"
+              inputMode="tel"
+              placeholder="Mobile number (+91 98765 43210)"
+              required
+              value={phone}
+              onChange={handlePhoneChange}
+              onBlur={handlePhoneBlur}
+              autoComplete="tel"
+            />
+            {fieldErrors.phone && (
+              <span className="field-error">{fieldErrors.phone}</span>
+            )}
+          </div>
+
           <div className="field-grid">
             <select
               className="field"
@@ -216,7 +491,6 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
               <option value="">Select Gender</option>
               <option value="Female">Female</option>
               <option value="Male">Male</option>
-              <option value="Unisex">Unisex / Other</option>
             </select>
             <select
               className="field"
@@ -281,12 +555,6 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
               }}
             >
               {errorMessage}
-            </div>
-          )}
-
-          {isSubmitted && submittedDetails && (
-            <div className="success">
-              Thank you{submittedDetails.name ? `, ${submittedDetails.name}` : ""}! We have received your request for {submittedDetails.date ? `${submittedDetails.date}` : "your selected date"}{submittedDetails.time ? ` at ${submittedDetails.time}` : ""}. Our Koramangala team will contact you shortly.
             </div>
           )}
         </form>

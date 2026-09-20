@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface HeaderProps {
-  onOpenBooking: () => void;
+  onOpenBooking?: () => void;
 }
 
 export function Header({ onOpenBooking }: HeaderProps) {
@@ -32,22 +33,30 @@ export function Header({ onOpenBooking }: HeaderProps) {
       </div>
       <header className={`nav ${isScrolled ? "scrolled" : ""}`}>
         <div className="w">
-          <Image
-            className="logo"
-            src="/images/img_3.png"
-            alt="Turn Style Unisex Salon"
-            width={245}
-            height={68}
-            priority
-          />
+          <Link href="/" aria-label="Turn Style Salon Home" style={{ display: "inline-block" }}>
+            <Image
+              className="logo"
+              src="/images/img_3.png"
+              alt="Turn Style Unisex Salon"
+              width={245}
+              height={68}
+              priority
+            />
+          </Link>
           <nav className="links">
-            <a href="#offers">Offers</a>
-            <a href="#services">Services</a>
-            <a href="#reviews">Reviews</a>
-            <a href="#location">Location</a>
-            <button className="btn book" onClick={onOpenBooking}>
-              Book Appointment
-            </button>
+            <Link href="/#offers">Offers</Link>
+            <Link href="/#services">Services</Link>
+            <Link href="/#reviews">Reviews</Link>
+            <Link href="/#location">Location</Link>
+            {onOpenBooking ? (
+              <button className="btn book" onClick={onOpenBooking}>
+                Book Appointment
+              </button>
+            ) : (
+              <Link href="/#services" className="btn book">
+                Explore Services
+              </Link>
+            )}
           </nav>
         </div>
       </header>
